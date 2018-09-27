@@ -3231,6 +3231,25 @@ public class Cooja extends Observable {
       }
       
 
+    } else if (args.length > 0 && args[0].startsWith("-hidden=")) {
+      String contikiApp = args[0].substring("-hidden=".length());
+
+      JDesktopPane desktop = createDesktopPane();
+      frame = new JFrame(WINDOW_TITLE);
+      frame.setState(java.awt.Frame.ICONIFIED);
+      Cooja gui = new Cooja(desktop);
+      configureFrame(gui, false);
+      frame.setVisible(false);
+      gui.doLoadConfig(false, true, new File(contikiApp), randomSeed);
+      Simulation sim = gui.getSimulation();
+      sim.startSimulation();
+      while (sim.isRunning()) {
+        try {
+          Thread.sleep(1000);
+        } catch (Exception e) {}
+      }
+      System.exit(0);
+      
     } else if (args.length > 0 && args[0].startsWith("-nogui=")) {
 
       /* Load simulation */
