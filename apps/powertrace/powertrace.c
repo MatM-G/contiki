@@ -86,6 +86,11 @@ powertrace_print(char *str)
   
   struct powertrace_sniff_stats *s;
 
+  uint64_t xall_cpu, xall_lpm, xall_transmit, xall_listen, xall_time;
+  uint32_t xpower_cpu, xpower_lpm, xpower_transmit, xpower_listen, xall_powerinmJ;
+  uint64_t xcpu_consumption, xlpm_consumption, xtransmit_consumption, xlisten_consumption;
+  
+
   energest_flush();
 
   all_cpu = energest_type_time(ENERGEST_TYPE_CPU);
@@ -114,6 +119,26 @@ powertrace_print(char *str)
   all_time = all_cpu + all_lpm;
   all_radio = energest_type_time(ENERGEST_TYPE_LISTEN) +
     energest_type_time(ENERGEST_TYPE_TRANSMIT);
+
+
+  xpower_cpu = 54000; //(1.8* 3V * 10000)
+  xpower_lpm = 1635; //(0.0545* 3V * 10000)
+  xpower_transmit = 531000; //(17.7* 3V * 10000)
+  xpower_listen = 600000; //(20* 3V * 10000)
+   
+  xall_cpu = energest_type_time(ENERGEST_TYPE_CPU);
+  xall_lpm = energest_type_time(ENERGEST_TYPE_LPM);
+  xall_transmit = energest_type_time(ENERGEST_TYPE_TRANSMIT);
+  xall_listen = energest_type_time(ENERGEST_TYPE_LISTEN);
+  xall_time= ((xall_cpu + xall_lpm)/32768) + 1;// simulation time in seconds , we increase one second to be exactly compatible with simulation time
+  
+  // calculate the power consumption
+  xcpu_consumption =  (xall_cpu * xpower_cpu) / 32768;
+  xlpm_consumption =  (xall_lpm * xpower_lpm) / 32768;
+  xtransmit_consumption =  (xall_transmit * xpower_transmit) / 32768;
+  xlisten_consumption =  (xall_listen *  xpower_listen) / 32768;
+  xall_powerinmJ = (xcpu_consumption + xlpm_consumption + xtransmit_consumption + xlisten_consumption) / 10000;
+  printf("ResultsLog:AveragePowermW:%d.%03d\n",(int)(xall_powerinmJ / xall_time), (int)((1000L * xall_powerinmJ) / xall_time - (xall_powerinmJ / xall_time) * 1000));
 
   printf("%s %lu P %d.%d %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu (radio %d.%02d%% / %d.%02d%% tx %d.%02d%% / %d.%02d%% listen %d.%02d%% / %d.%02d%%)\n",
          str,

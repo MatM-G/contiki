@@ -793,6 +793,7 @@ dao_input_storing(void)
 
         buffer = UIP_ICMP_PAYLOAD;
         buffer[3] = out_seq; /* add an outgoing seq no before fwd */
+        printf("ResultsLog:totalDAOForward:%d:nopath\n", ++instance->dao_totforwarded);
         uip_icmp6_send(rpl_get_parent_ipaddr(dag->preferred_parent),
                        ICMP6_RPL, RPL_CODE_DAO, buffer_length);
       }
@@ -885,6 +886,7 @@ fwd_dao:
 
       buffer = UIP_ICMP_PAYLOAD;
       buffer[3] = out_seq; /* add an outgoing seq no before fwd */
+      printf("ResultsLog:totalDAOForward:%d:nopath\n", ++instance->dao_totforwarded);
       uip_icmp6_send(rpl_get_parent_ipaddr(dag->preferred_parent),
                      ICMP6_RPL, RPL_CODE_DAO, buffer_length);
     }
@@ -1180,6 +1182,8 @@ dao_output_target_seq(rpl_parent_t *parent, uip_ipaddr_t *prefix,
 #ifdef RPL_DEBUG_DAO_OUTPUT
   RPL_DEBUG_DAO_OUTPUT(parent);
 #endif
+
+  printf("ResultsLog:totalDAOSent:%d\n", ++instance->dao_totsent);
 
   buffer = UIP_ICMP_PAYLOAD;
   pos = 0;

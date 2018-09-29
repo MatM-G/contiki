@@ -48,11 +48,11 @@
 
 #define UDP_EXAMPLE_ID  190
 
-#define DEBUG DEBUG_FULL
+#define DEBUG DEBUG_PRINT
 #include "net/ip/uip-debug.h"
 
 #ifndef PERIOD
-#define PERIOD 60
+#define PERIOD 10
 #endif
 
 #define START_INTERVAL		(15 * CLOCK_SECOND)
@@ -77,8 +77,9 @@ tcpip_handler(void)
 
   if(uip_newdata()) {
     str = uip_appdata;
-    str[uip_datalen()] = '\0';
+    str[uip_datalen()] = 0;
     reply++;
+	  printf("ResultsLog:DATA:RecPacketReplySeq:%s:PacketReply#:%u:\n",str, ++seq_id);
     printf("DATA recv '%s' (s:%d, r:%d)\n", str, seq_id, reply);
   }
 }
@@ -105,9 +106,10 @@ send_packet(void *ptr)
 #endif /* SERVER_REPLY */
 
   seq_id++;
+  PRINTF("ResultsLog:PacketSent#:%u\n", seq_id);
   PRINTF("DATA send to %d 'Hello %d'\n",
          server_ipaddr.u8[sizeof(server_ipaddr.u8) - 1], seq_id);
-  sprintf(buf, "Hello %d from the client", seq_id);
+  sprintf(buf, "%d", seq_id);
   uip_udp_packet_sendto(client_conn, buf, strlen(buf),
                         &server_ipaddr, UIP_HTONS(UDP_SERVER_PORT));
 }

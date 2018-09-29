@@ -49,7 +49,7 @@
 #define UDP_SERVER_PORT	5678
 
 #define UDP_EXAMPLE_ID  190
-
+static uint16_t numberOfReceivedPacket[ 101];
 static struct uip_udp_conn *server_conn;
 
 PROCESS(udp_server_process, "UDP server process");
@@ -59,10 +59,14 @@ static void
 tcpip_handler(void)
 {
   char *appdata;
-
-  if(uip_newdata()) {
+  int senderID;
+  if(uip_newdata()) 
+  {
     appdata = (char *)uip_appdata;
     appdata[uip_datalen()] = 0;
+    senderID = UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1];
+    numberOfReceivedPacket[senderID]++;
+    printf("ResultsLog:DATA:PacketRecieved#:ForNode:%d:is:%u:RecPacketSeq:%s:\n",senderID ,numberOfReceivedPacket[senderID],appdata);
     PRINTF("DATA recv '%s' from ", appdata);
     PRINTF("%d",
            UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1]);
