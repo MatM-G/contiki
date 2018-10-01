@@ -158,6 +158,7 @@ typedef struct uip_ds6_route {
   UIP_DS6_ROUTE_STATE_TYPE state;
 #endif
   uint8_t length;
+  uint8_t flag;
 } uip_ds6_route_t;
 
 /** \brief A neighbor route list entry, used on the
@@ -195,7 +196,7 @@ uip_ds6_route_t *uip_ds6_route_add(uip_ipaddr_t *ipaddr, uint8_t length,
                                    uip_ipaddr_t *next_hop);
 void uip_ds6_route_rm(uip_ds6_route_t *route);
 void uip_ds6_route_rm_by_nexthop(uip_ipaddr_t *nexthop);
-
+void uip_ds6_route_flagReset();
 uip_ipaddr_t *uip_ds6_route_nexthop(uip_ds6_route_t *);
 int uip_ds6_route_num_routes(void);
 uip_ds6_route_t *uip_ds6_route_head(void);

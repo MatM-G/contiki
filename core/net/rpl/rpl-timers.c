@@ -180,6 +180,8 @@ handle_dio_timer(void *ptr)
       printf("ResultsLog:totalDIOSent:%d\n", instance->dio_totsend);
 #endif /* RPL_CONF_STATS */
       dio_output(instance, NULL);
+      /* looop throguh all routes you have to reset thier flag */
+      uip_ds6_route_flagReset();
     } else {
       PRINTF("RPL: Suppressing DIO transmission (%d >= %d)\n",
              instance->dio_counter, instance->dio_redundancy);

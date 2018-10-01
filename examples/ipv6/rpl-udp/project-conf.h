@@ -70,3 +70,6 @@
 #endif /* WITH_NON_STORING */
 
 #endif
+
+#define RPL_CALLBACK_PARENT_SWITCH rpl_udp_callback_parent_switch
+#define RPL_CONF_MOP RPL_MOP_STORING_NO_MULTICAST

@@ -719,3 +719,12 @@ uip_ds6_defrt_periodic(void)
 }
 /*---------------------------------------------------------------------------*/
 /** @} */
+void
+uip_ds6_route_flagReset()
+{
+  uip_ds6_route_t *r;
+  for(r = uip_ds6_route_head(); r != NULL; r = uip_ds6_route_next(r)) 
+  { 
+     r->flag  = 0;
+  }
+}

@@ -59,10 +59,13 @@ static void
 tcpip_handler(void)
 {
   char *appdata;
+  char buf[30];
   int senderID;
+  int seqID;
   if(uip_newdata()) 
   {
     appdata = (char *)uip_appdata;
+    seqID = atoi(appdata);
     appdata[uip_datalen()] = 0;
     senderID = UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1];
     numberOfReceivedPacket[senderID]++;
@@ -71,12 +74,13 @@ tcpip_handler(void)
     PRINTF("%d",
            UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1]);
     PRINTF("\n");
-#if SERVER_REPLY
+//#if SERVER_REPLY
     PRINTF("DATA sending reply\n");
     uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
-    uip_udp_packet_send(server_conn, "Reply", sizeof("Reply"));
+    sprintf(buf, "%d", seqID);
+    uip_udp_packet_send(server_conn, buf, strlen(buf));
     uip_create_unspecified(&server_conn->ripaddr);
-#endif
+//#endif
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -184,3 +188,11 @@ PROCESS_THREAD(udp_server_process, ev, data)
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
+static int switch_id;
+
+void
+rpl_udp_callback_parent_switch(rpl_parent_t *old, rpl_parent_t *new)
+{
+    ++switch_id;
+    printf("ResultsLog:NumberOfParentswitch:%i\n", switch_id);
+}

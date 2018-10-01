@@ -250,6 +250,7 @@ struct rpl_instance {
   uint16_t dao_totsent;
   uint16_t dao_totforwarded;  
 #endif /* RPL_CONF_STATS */
+
   clock_time_t dio_next_delay; /* delay for completion of dio interval */
 #if RPL_WITH_PROBING
   struct ctimer probing_timer;

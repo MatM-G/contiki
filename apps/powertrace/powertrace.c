@@ -72,6 +72,7 @@ PROCESS(powertrace_process, "Periodic power output");
 void
 powertrace_print(char *str)
 {
+  /*
   static unsigned long last_cpu, last_lpm, last_transmit, last_listen;
   static unsigned long last_idle_transmit, last_idle_listen;
 
@@ -85,7 +86,7 @@ powertrace_print(char *str)
   unsigned long time, all_time, radio, all_radio;
   
   struct powertrace_sniff_stats *s;
-
+*/
   uint64_t xall_cpu, xall_lpm, xall_transmit, xall_listen, xall_time;
   uint32_t xpower_cpu, xpower_lpm, xpower_transmit, xpower_listen, xall_powerinmJ;
   uint64_t xcpu_consumption, xlpm_consumption, xtransmit_consumption, xlisten_consumption;
@@ -93,7 +94,7 @@ powertrace_print(char *str)
 
   energest_flush();
 
-  all_cpu = energest_type_time(ENERGEST_TYPE_CPU);
+/*  all_cpu = energest_type_time(ENERGEST_TYPE_CPU);
   all_lpm = energest_type_time(ENERGEST_TYPE_LPM);
   all_transmit = energest_type_time(ENERGEST_TYPE_TRANSMIT);
   all_listen = energest_type_time(ENERGEST_TYPE_LISTEN);
@@ -119,7 +120,7 @@ powertrace_print(char *str)
   all_time = all_cpu + all_lpm;
   all_radio = energest_type_time(ENERGEST_TYPE_LISTEN) +
     energest_type_time(ENERGEST_TYPE_TRANSMIT);
-
+*/
 
   xpower_cpu = 54000; //(1.8* 3V * 10000)
   xpower_lpm = 1635; //(0.0545* 3V * 10000)
@@ -140,7 +141,7 @@ powertrace_print(char *str)
   xall_powerinmJ = (xcpu_consumption + xlpm_consumption + xtransmit_consumption + xlisten_consumption) / 10000;
   printf("ResultsLog:AveragePowermW:%d.%03d\n",(int)(xall_powerinmJ / xall_time), (int)((1000L * xall_powerinmJ) / xall_time - (xall_powerinmJ / xall_time) * 1000));
 
-  printf("%s %lu P %d.%d %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu (radio %d.%02d%% / %d.%02d%% tx %d.%02d%% / %d.%02d%% listen %d.%02d%% / %d.%02d%%)\n",
+  /*printf("%s %lu P %d.%d %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu (radio %d.%02d%% / %d.%02d%% tx %d.%02d%% / %d.%02d%% listen %d.%02d%% / %d.%02d%%)\n",
          str,
          clock_time(), linkaddr_node_addr.u8[0], linkaddr_node_addr.u8[1], seqno,
          all_cpu, all_lpm, all_transmit, all_listen, all_idle_transmit, all_idle_listen,
@@ -213,7 +214,7 @@ powertrace_print(char *str)
     s->last_output_rxtime = s->output_rxtime;
     
   }
-  seqno++;
+  seqno++;*/
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(powertrace_process, ev, data)

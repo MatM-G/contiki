@@ -60,6 +60,8 @@
 #define SEND_TIME		(random_rand() % (SEND_INTERVAL))
 #define MAX_PAYLOAD_LEN		30
 
+#include "net/rpl/rpl.h"
+
 static struct uip_udp_conn *client_conn;
 static uip_ipaddr_t server_ipaddr;
 
@@ -74,10 +76,9 @@ static void
 tcpip_handler(void)
 {
   char *str;
-
   if(uip_newdata()) {
     str = uip_appdata;
-    str[uip_datalen()] = 0;
+    str[uip_datalen()] = '\0';
     reply++;
 	  printf("ResultsLog:DATA:RecPacketReplySeq:%s:PacketReply#:%u:\n",str, ++seq_id);
     printf("DATA recv '%s' (s:%d, r:%d)\n", str, seq_id, reply);
@@ -89,7 +90,6 @@ send_packet(void *ptr)
 {
   char buf[MAX_PAYLOAD_LEN];
 
-#ifdef SERVER_REPLY
   uint8_t num_used = 0;
   uip_ds6_nbr_t *nbr;
 
@@ -103,12 +103,10 @@ send_packet(void *ptr)
     ANNOTATE("#A r=%d/%d,color=%s,n=%d %d\n", reply, seq_id,
              reply == seq_id ? "GREEN" : "RED", uip_ds6_route_num_routes(), num_used);
   }
-#endif /* SERVER_REPLY */
 
   seq_id++;
   PRINTF("ResultsLog:PacketSent#:%u\n", seq_id);
-  PRINTF("DATA send to %d 'Hello %d'\n",
-         server_ipaddr.u8[sizeof(server_ipaddr.u8) - 1], seq_id);
+  PRINTF("DATA send to %d 'Hello %d'\n",server_ipaddr.u8[sizeof(server_ipaddr.u8) - 1], seq_id);
   sprintf(buf, "%d", seq_id);
   uip_udp_packet_sendto(client_conn, buf, strlen(buf),
                         &server_ipaddr, UIP_HTONS(UDP_SERVER_PORT));
@@ -268,3 +266,11 @@ PROCESS_THREAD(udp_client_process, ev, data)
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
+static int switch_id;
+
+void
+rpl_udp_callback_parent_switch(rpl_parent_t *old, rpl_parent_t *new)
+{
+    ++switch_id;
+    printf("ResultsLog:NumberOfParentswitch:%i\n", switch_id);
+}

@@ -227,6 +227,8 @@ rpl_parent_is_reachable(rpl_parent_t *p) {
   }
 }
 /*---------------------------------------------------------------------------*/
+//static int parent_switchcount;
+
 static void
 rpl_set_preferred_parent(rpl_dag_t *dag, rpl_parent_t *p)
 {
@@ -248,6 +250,8 @@ rpl_set_preferred_parent(rpl_dag_t *dag, rpl_parent_t *p)
 #ifdef RPL_CALLBACK_PARENT_SWITCH
     RPL_CALLBACK_PARENT_SWITCH(dag->preferred_parent, p);
 #endif /* RPL_CALLBACK_PARENT_SWITCH */
+    /*parent_switchcount++;
+    printf("ResultsLog:NumberOfParentswitch:%i\n", parent_switchcount);*/
 
     /* Always keep the preferred parent locked, so it remains in the
      * neighbor table. */
