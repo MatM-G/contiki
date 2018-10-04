@@ -72,6 +72,8 @@
 #define UIP_IP_BUF       ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define UIP_ICMP_BUF     ((struct uip_icmp_hdr *)&uip_buf[uip_l2_l3_hdr_len])
 #define UIP_ICMP_PAYLOAD ((unsigned char *)&uip_buf[uip_l2_l3_icmp_hdr_len])
+
+#define DAO_FORWARD_MAX 10
 /*---------------------------------------------------------------------------*/
 static void dis_input(void);
 static void dio_input(void);
@@ -886,6 +888,7 @@ fwd_dao:
 
       buffer = UIP_ICMP_PAYLOAD;
       buffer[3] = out_seq; /* add an outgoing seq no before fwd */
+      rep->flag++;
       printf("ResultsLog:totalDAOForward:%d:nopath\n", ++instance->dao_totforwarded);
       uip_icmp6_send(rpl_get_parent_ipaddr(dag->preferred_parent),
                      ICMP6_RPL, RPL_CODE_DAO, buffer_length);

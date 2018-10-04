@@ -48,15 +48,15 @@
 
 struct powertrace_sniff_stats {
   struct powertrace_sniff_stats *next;
-  unsigned long num_input, num_output;
-  unsigned long input_txtime, input_rxtime;
-  unsigned long output_txtime, output_rxtime;
+  uint32_t num_input, num_output;
+  uint32_t input_txtime, input_rxtime;
+  uint32_t output_txtime, output_rxtime;
 #if NETSTACK_CONF_WITH_IPV6
   uint16_t proto; /* includes proto + possibly flags */
 #endif
   uint16_t channel;
-  unsigned long last_input_txtime, last_input_rxtime;
-  unsigned long last_output_txtime, last_output_rxtime;
+  uint32_t last_input_txtime, last_input_rxtime;
+  uint32_t last_output_txtime, last_output_rxtime;
 };
 
 #define INPUT  1
@@ -72,149 +72,44 @@ PROCESS(powertrace_process, "Periodic power output");
 void
 powertrace_print(char *str)
 {
-  /*
-  static unsigned long last_cpu, last_lpm, last_transmit, last_listen;
-  static unsigned long last_idle_transmit, last_idle_listen;
-
-  unsigned long cpu, lpm, transmit, listen;
-  unsigned long all_cpu, all_lpm, all_transmit, all_listen;
-  unsigned long idle_transmit, idle_listen;
-  unsigned long all_idle_transmit, all_idle_listen;
-
-  static unsigned long seqno;
-
-  unsigned long time, all_time, radio, all_radio;
+  uint64_t all_cpu, all_lpm, all_transmit, all_listen, all_time;
+  uint32_t power_cpu, power_lpm, power_transmit, power_listen, all_powerinmJ , all_powerinmW;
+  uint64_t cpu_consumption, lpm_consumption, transmit_consumption, listen_consumption;
+  uint32_t cpu_time_per_second, lpm_time_per_second, transmit_time_per_second, listen_time_per_second;
+ 
   
-  struct powertrace_sniff_stats *s;
-*/
-  uint64_t xall_cpu, xall_lpm, xall_transmit, xall_listen, xall_time;
-  uint32_t xpower_cpu, xpower_lpm, xpower_transmit, xpower_listen, xall_powerinmJ;
-  uint64_t xcpu_consumption, xlpm_consumption, xtransmit_consumption, xlisten_consumption;
-  
+   power_cpu = 54000; //(1.8* 3V * 10000)
+   power_lpm = 1635; //(0.0545* 3V * 10000)
+   power_transmit = 531000; //(17.7* 3V * 10000)
+   power_listen = 600000; //(20* 3V * 10000)
+   energest_flush();
 
-  energest_flush();
-
-/*  all_cpu = energest_type_time(ENERGEST_TYPE_CPU);
-  all_lpm = energest_type_time(ENERGEST_TYPE_LPM);
-  all_transmit = energest_type_time(ENERGEST_TYPE_TRANSMIT);
-  all_listen = energest_type_time(ENERGEST_TYPE_LISTEN);
-  all_idle_transmit = compower_idle_activity.transmit;
-  all_idle_listen = compower_idle_activity.listen;
-
-  cpu = all_cpu - last_cpu;
-  lpm = all_lpm - last_lpm;
-  transmit = all_transmit - last_transmit;
-  listen = all_listen - last_listen;
-  idle_transmit = compower_idle_activity.transmit - last_idle_transmit;
-  idle_listen = compower_idle_activity.listen - last_idle_listen;
-
-  last_cpu = energest_type_time(ENERGEST_TYPE_CPU);
-  last_lpm = energest_type_time(ENERGEST_TYPE_LPM);
-  last_transmit = energest_type_time(ENERGEST_TYPE_TRANSMIT);
-  last_listen = energest_type_time(ENERGEST_TYPE_LISTEN);
-  last_idle_listen = compower_idle_activity.listen;
-  last_idle_transmit = compower_idle_activity.transmit;
-
-  radio = transmit + listen;
-  time = cpu + lpm;
-  all_time = all_cpu + all_lpm;
-  all_radio = energest_type_time(ENERGEST_TYPE_LISTEN) +
-    energest_type_time(ENERGEST_TYPE_TRANSMIT);
-*/
-
-  xpower_cpu = 54000; //(1.8* 3V * 10000)
-  xpower_lpm = 1635; //(0.0545* 3V * 10000)
-  xpower_transmit = 531000; //(17.7* 3V * 10000)
-  xpower_listen = 600000; //(20* 3V * 10000)
-   
-  xall_cpu = energest_type_time(ENERGEST_TYPE_CPU);
-  xall_lpm = energest_type_time(ENERGEST_TYPE_LPM);
-  xall_transmit = energest_type_time(ENERGEST_TYPE_TRANSMIT);
-  xall_listen = energest_type_time(ENERGEST_TYPE_LISTEN);
-  xall_time= ((xall_cpu + xall_lpm)/32768) + 1;// simulation time in seconds , we increase one second to be exactly compatible with simulation time
+   all_cpu = energest_type_time(ENERGEST_TYPE_CPU);
+   all_lpm = energest_type_time(ENERGEST_TYPE_LPM);
+   all_transmit = energest_type_time(ENERGEST_TYPE_TRANSMIT);
+   all_listen = energest_type_time(ENERGEST_TYPE_LISTEN);
+   all_time= ((all_cpu + all_lpm)/32768) + 1;// simulation time in seconds , we increase one second to be exactly compatible with simulation time
   
   // calculate the power consumption
-  xcpu_consumption =  (xall_cpu * xpower_cpu) / 32768;
-  xlpm_consumption =  (xall_lpm * xpower_lpm) / 32768;
-  xtransmit_consumption =  (xall_transmit * xpower_transmit) / 32768;
-  xlisten_consumption =  (xall_listen *  xpower_listen) / 32768;
-  xall_powerinmJ = (xcpu_consumption + xlpm_consumption + xtransmit_consumption + xlisten_consumption) / 10000;
-  printf("ResultsLog:AveragePowermW:%d.%03d\n",(int)(xall_powerinmJ / xall_time), (int)((1000L * xall_powerinmJ) / xall_time - (xall_powerinmJ / xall_time) * 1000));
+  cpu_consumption =  (all_cpu * power_cpu) / 32768;
+  lpm_consumption =  (all_lpm * power_lpm) / 32768;
+  transmit_consumption =  (all_transmit * power_transmit) / 32768;
+  listen_consumption =  (all_listen *  power_listen) / 32768;
+  all_powerinmJ = (cpu_consumption + lpm_consumption + transmit_consumption + listen_consumption) / 10000;
+  all_powerinmW = all_powerinmJ / all_time;
+  //printf("all_cpu %llu all_lpm %llu all_transmit %llu all_listen %llu \n", ( all_cpu ), (all_lpm) , (all_transmit), (all_listen));
+  //printf("all_cpuS %lu all_lpmS %lu all_transmitS %lu all_listenS %lu \n", ( cpu_time_per_second ), (lpm_time_per_second) , (transmit_time_per_second), ( listen_time_per_second));
+  //printf("all_cpuP %llu lpmP %llu transmitP %llu listenP %llu Average Energy in mJ %lu", cpu_consumption, lpm_consumption,transmit_consumption, listen_consumption);
+  //printf("Cons energy in mJ %lu Average Power in mW %d.%03d simualtionTime in S %llu \n", all_powerinmJ, (int)(all_powerinmJ / all_time), (int)((1000L * all_powerinmJ) / all_time - (all_powerinmJ / all_time) * 1000), all_time);
+  printf("ResultsLog:AveragePowermW:%d.%03d\n",(int)(all_powerinmJ / all_time), (int)((1000L * all_powerinmJ) / all_time - (all_powerinmJ / all_time) * 1000));
 
-  /*printf("%s %lu P %d.%d %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu (radio %d.%02d%% / %d.%02d%% tx %d.%02d%% / %d.%02d%% listen %d.%02d%% / %d.%02d%%)\n",
-         str,
-         clock_time(), linkaddr_node_addr.u8[0], linkaddr_node_addr.u8[1], seqno,
-         all_cpu, all_lpm, all_transmit, all_listen, all_idle_transmit, all_idle_listen,
-         cpu, lpm, transmit, listen, idle_transmit, idle_listen,
-         (int)((100L * (all_transmit + all_listen)) / all_time),
-         (int)((10000L * (all_transmit + all_listen) / all_time) - (100L * (all_transmit + all_listen) / all_time) * 100),
-         (int)((100L * (transmit + listen)) / time),
-         (int)((10000L * (transmit + listen) / time) - (100L * (transmit + listen) / time) * 100),
-         (int)((100L * all_transmit) / all_time),
-         (int)((10000L * all_transmit) / all_time - (100L * all_transmit / all_time) * 100),
-         (int)((100L * transmit) / time),
-         (int)((10000L * transmit) / time - (100L * transmit / time) * 100),
-         (int)((100L * all_listen) / all_time),
-         (int)((10000L * all_listen) / all_time - (100L * all_listen / all_time) * 100),
-         (int)((100L * listen) / time),
-         (int)((10000L * listen) / time - (100L * listen / time) * 100));
+  static uint32_t seqno;
 
-  for(s = list_head(stats_list); s != NULL; s = list_item_next(s)) {
+  
+  struct powertrace_sniff_stats *s;
 
-#if ! NETSTACK_CONF_WITH_IPV6
-    printf("%s %lu SP %d.%d %lu %u %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu (channel %d radio %d.%02d%% / %d.%02d%%)\n",
-           str, clock_time(), linkaddr_node_addr.u8[0], linkaddr_node_addr.u8[1], seqno,
-           s->channel,
-           s->num_input, s->input_txtime, s->input_rxtime,
-           s->input_txtime - s->last_input_txtime,
-           s->input_rxtime - s->last_input_rxtime,
-           s->num_output, s->output_txtime, s->output_rxtime,
-           s->output_txtime - s->last_output_txtime,
-           s->output_rxtime - s->last_output_rxtime,
-           s->channel,
-           (int)((100L * (s->input_rxtime + s->input_txtime + s->output_rxtime + s->output_txtime)) / all_radio),
-           (int)((10000L * (s->input_rxtime + s->input_txtime + s->output_rxtime + s->output_txtime)) / all_radio),
-           (int)((100L * (s->input_rxtime + s->input_txtime +
-                          s->output_rxtime + s->output_txtime -
-                          (s->last_input_rxtime + s->last_input_txtime +
-                           s->last_output_rxtime + s->last_output_txtime))) /
-                 radio),
-           (int)((10000L * (s->input_rxtime + s->input_txtime +
-                          s->output_rxtime + s->output_txtime -
-                          (s->last_input_rxtime + s->last_input_txtime +
-                           s->last_output_rxtime + s->last_output_txtime))) /
-                 radio));
-#else
-    printf("%s %lu SP %d.%d %lu %u %u %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu (proto %u(%u) radio %d.%02d%% / %d.%02d%%)\n",
-           str, clock_time(), linkaddr_node_addr.u8[0], linkaddr_node_addr.u8[1], seqno,
-           s->proto, s->channel,
-           s->num_input, s->input_txtime, s->input_rxtime,
-           s->input_txtime - s->last_input_txtime,
-           s->input_rxtime - s->last_input_rxtime,
-           s->num_output, s->output_txtime, s->output_rxtime,
-           s->output_txtime - s->last_output_txtime,
-           s->output_rxtime - s->last_output_rxtime,
-           s->proto, s->channel,
-           (int)((100L * (s->input_rxtime + s->input_txtime + s->output_rxtime + s->output_txtime)) / all_radio),
-           (int)((10000L * (s->input_rxtime + s->input_txtime + s->output_rxtime + s->output_txtime)) / all_radio),
-           (int)((100L * (s->input_rxtime + s->input_txtime +
-                          s->output_rxtime + s->output_txtime -
-                          (s->last_input_rxtime + s->last_input_txtime +
-                           s->last_output_rxtime + s->last_output_txtime))) /
-                 radio),
-           (int)((10000L * (s->input_rxtime + s->input_txtime +
-                          s->output_rxtime + s->output_txtime -
-                          (s->last_input_rxtime + s->last_input_txtime +
-                           s->last_output_rxtime + s->last_output_txtime))) /
-                 radio));
-#endif
-    s->last_input_txtime = s->input_txtime;
-    s->last_input_rxtime = s->input_rxtime;
-    s->last_output_txtime = s->output_txtime;
-    s->last_output_rxtime = s->output_rxtime;
-    
-  }
-  seqno++;*/
+
+  seqno++;
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(powertrace_process, ev, data)
@@ -313,8 +208,13 @@ output_sniffer(int mac_status)
 static void
 sniffprint(char *prefix, int seqno)
 {
-  const linkaddr_t *esender;
+  const linkaddr_t *sender, *receiver, *esender, *ereceiver;
+
+  sender = packetbuf_addr(PACKETBUF_ADDR_SENDER);
+  receiver = packetbuf_addr(PACKETBUF_ADDR_RECEIVER);
   esender = packetbuf_addr(PACKETBUF_ADDR_ESENDER);
+  ereceiver = packetbuf_addr(PACKETBUF_ADDR_ERECEIVER);
+
 
   printf("%lu %s %d %u %d %d %d.%d %u %u\n",
          clock_time(),
