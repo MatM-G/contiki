@@ -40,7 +40,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define DEBUG DEBUG_PRINT
+#define DEBUG DEBUG_NONE
 #include "net/ip/uip-debug.h"
 
 #define UIP_IP_BUF   ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
@@ -70,12 +70,12 @@ tcpip_handler(void)
     senderID = UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1];
     numberOfReceivedPacket[senderID]++;
     printf("ResultsLog:DATA:PacketRecieved#:ForNode:%d:is:%u:RecPacketSeq:%s:\n",senderID ,numberOfReceivedPacket[senderID],appdata);
-    PRINTF("DATA recv '%s' from ", appdata);
-    PRINTF("%d",
-           UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1]);
-    PRINTF("\n");
+    //PRINTF("DATA recv '%s' from ", appdata);
+    //PRINTF("%d",
+    //       UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1]);
+    //PRINTF("\n");
 //#if SERVER_REPLY
-    PRINTF("DATA sending reply\n");
+    //PRINTF("DATA sending reply\n");
     uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
     sprintf(buf, "%d", seqID);
     uip_udp_packet_send(server_conn, buf, strlen(buf));

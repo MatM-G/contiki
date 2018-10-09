@@ -825,10 +825,8 @@ PROCESS_THREAD(tcpip_process, ev, data)
 #endif
 
   tcpip_event = process_alloc_event();
-  printf("process_alloc_event: tcpip_event == %i\n",tcpip_event);
 #if UIP_CONF_ICMP6
   tcpip_icmp6_event = process_alloc_event();
-  printf("process_alloc_event: tcpip_icmp6_event == %i\n",tcpip_icmp6_event);
 #endif /* UIP_CONF_ICMP6 */
   etimer_set(&periodic, CLOCK_SECOND / 2);
 

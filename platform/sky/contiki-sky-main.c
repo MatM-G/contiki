@@ -97,7 +97,7 @@ static uint8_t is_gateway;
 #include "experiment-setup.h"
 #endif
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
 #else /* DEBUG */
@@ -303,7 +303,8 @@ main(int argc, char **argv)
   NETSTACK_MAC.init();
   NETSTACK_LLSEC.init();
   NETSTACK_NETWORK.init();
-
+  PRINTF("channel_check_interval: %u CLOCK_SECOND: %lu\n", 
+      NETSTACK_RDC.channel_check_interval(), CLOCK_SECOND);
   PRINTF("%s %s %s, channel check rate %lu Hz, radio channel %u, CCA threshold %i\n",
          NETSTACK_LLSEC.name, NETSTACK_MAC.name, NETSTACK_RDC.name,
          CLOCK_SECOND / (NETSTACK_RDC.channel_check_interval() == 0 ? 1:
