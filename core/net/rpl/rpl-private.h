@@ -187,7 +187,17 @@
 /* Rank of a root node. */
 #define ROOT_RANK(instance)             (instance)->min_hoprankinc
 
+#ifndef RPL_CONF_INFINITE_RANK
 #define INFINITE_RANK                   0xffff
+#else /* RPL_CONF_INFINITE_RANK */
+#define INFINITE_RANK             RPL_CONF_INFINITE_RANK
+#endif /* RPL_CONF_INFINITE_RANK */
+
+#ifndef RPL_CONF_CALCULATE_RANK_ON_TIMER
+#define CALCULATE_RANK_ON_TIMER         1
+#else /* RPL_CONF_CALCULATE_RANK_ON_TIMER */
+#define CALCULATE_RANK_ON_TIMER             RPL_CONF_CALCULATE_RANK_ON_TIMER
+#endif /* RPL_CONF_CALCULATE_RANK_ON_TIMER */
 
 /*---------------------------------------------------------------------------*/
 #define RPL_INSTANCE_LOCAL_FLAG         0x80

@@ -92,7 +92,9 @@ handle_periodic_timer(void *ptr)
       rpl_ns_periodic();
     }
   }
-  rpl_recalculate_ranks();
+  if(CALCULATE_RANK_ON_TIMER == 1){
+    rpl_recalculate_ranks();
+  }
 
   /* handle DIS */
 #if RPL_DIS_SEND
