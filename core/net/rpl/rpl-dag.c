@@ -88,7 +88,7 @@ rpl_instance_t instance_table[RPL_MAX_INSTANCES];
 rpl_instance_t *default_instance;
 
 /*---------------------------------------------------------------------------*/
-void
+/*void
 rpl_print_neighbor_list(void)
 {
   if(default_instance != NULL && default_instance->current_dag != NULL &&
@@ -114,9 +114,9 @@ rpl_print_neighbor_list(void)
       );
       p = nbr_table_next(rpl_parents, p);
     }
-    printf("RPL: end of list\n");
+    //printf("RPL: end of list\n");
   }
-}
+}*/
 /*---------------------------------------------------------------------------*/
 uip_ds6_nbr_t *
 rpl_get_nbr(rpl_parent_t *parent)
@@ -327,6 +327,9 @@ should_refresh_routes(rpl_instance_t *instance, rpl_dio_t *dio, rpl_parent_t *p)
 static int
 acceptable_rank(rpl_dag_t *dag, rpl_rank_t rank)
 {
+  //printf("rpl-dag|acceptable_rank|dag->instance->max_rankinc==%u\n",dag->instance->max_rankinc);
+  //printf("rpl-dag|acceptable_rank|DAG_RANK(rank, dag->instance)==%u\n",DAG_RANK(rank, dag->instance));
+  //printf("rpl-dag|acceptable_rank|DAG_RANK(dag->min_rank + dag->instance->max_rankinc, dag->instance)==%u\n",DAG_RANK(dag->min_rank + dag->instance->max_rankinc, dag->instance));
   return rank != INFINITE_RANK &&
     ((dag->instance->max_rankinc == 0) ||
      DAG_RANK(rank, dag->instance) <= DAG_RANK(dag->min_rank + dag->instance->max_rankinc, dag->instance));
@@ -414,6 +417,7 @@ rpl_set_root(uint8_t instance_id, uip_ipaddr_t *dag_id)
     RPL_DIO_INTERVAL_DOUBLINGS;
   instance->dio_redundancy = RPL_DIO_REDUNDANCY;
   instance->max_rankinc = RPL_MAX_RANKINC;
+  //printf("rpl-dag|rpl_set_root|RPL_MAX_RANKINC=%u \n",RPL_MAX_RANKINC);
   instance->min_hoprankinc = RPL_MIN_HOPRANKINC;
   instance->default_lifetime = RPL_DEFAULT_LIFETIME;
   instance->lifetime_unit = RPL_DEFAULT_LIFETIME_UNIT;
@@ -817,7 +821,7 @@ rpl_select_dag(rpl_instance_t *instance, rpl_parent_t *p)
   }
 
   if(!acceptable_rank(best_dag, best_dag->rank)) {
-    PRINTF("RPL: New rank unacceptable!\n");
+    //printf("RPL: New rank unacceptable!\n");
     rpl_set_preferred_parent(instance->current_dag, NULL);
     if(RPL_IS_STORING(instance) && last_parent != NULL) {
       /* Send a No-Path DAO to the removed preferred parent. */
@@ -843,9 +847,9 @@ rpl_select_dag(rpl_instance_t *instance, rpl_parent_t *p)
     /* The DAO parent set changed - schedule a DAO transmission. */
     rpl_schedule_dao(instance);
     rpl_reset_dio_timer(instance);
-#if DEBUG
+/*#if DEBUG
     rpl_print_neighbor_list();
-#endif
+#endif*/
   } else if(best_dag->rank != old_rank) {
     PRINTF("RPL: Preferred parent update, rank changed from %u to %u\n",
   	(unsigned)old_rank, best_dag->rank);
@@ -1368,7 +1372,7 @@ rpl_process_parent_event(rpl_instance_t *instance, rpl_parent_t *p)
   int return_value;
   rpl_parent_t *last_parent = instance->current_dag->preferred_parent;
 
-#if DEBUG
+#if 1
   rpl_rank_t old_rank;
   old_rank = instance->current_dag->rank;
 #endif /* DEBUG */
@@ -1384,10 +1388,11 @@ rpl_process_parent_event(rpl_instance_t *instance, rpl_parent_t *p)
     rpl_remove_routes_by_nexthop(rpl_get_parent_ipaddr(p), p->dag);
   }
 
+#if RPL_VALIDATE_RANK
   if(!acceptable_rank(p->dag, p->rank)) {
     /* The candidate parent is no longer valid: the rank increase resulting
        from the choice of it as a parent would be too high. */
-    PRINTF("RPL: Unacceptable rank %u (Current min %u, MaxRankInc %u)\n", (unsigned)p->rank,
+    printf("RPL: Unacceptable rank %u (Current min %u, MaxRankInc %u)\n", (unsigned)p->rank,
         p->dag->min_rank, p->dag->instance->max_rankinc);
     rpl_nullify_parent(p);
     if(p != instance->current_dag->preferred_parent) {
@@ -1396,27 +1401,27 @@ rpl_process_parent_event(rpl_instance_t *instance, rpl_parent_t *p)
       return_value = 0;
     }
   }
+#endif
 
   if(rpl_select_dag(instance, p) == NULL) {
     if(last_parent != NULL) {
       /* No suitable parent anymore; trigger a local repair. */
-      PRINTF("RPL: No parents found in any DAG\n");
+      printf("RPL: No parents found in any DAG\n");
       rpl_local_repair(instance);
       return 0;
     }
   }
 
-#if DEBUG
+#if 1
   if(DAG_RANK(old_rank, instance) != DAG_RANK(instance->current_dag->rank, instance)) {
-    PRINTF("RPL: Moving in the instance from rank %hu to %hu\n",
+    printf("RPL: Moving in the instance from rank %u to %u\n",
 	   DAG_RANK(old_rank, instance), DAG_RANK(instance->current_dag->rank, instance));
     if(instance->current_dag->rank != INFINITE_RANK) {
-      PRINTF("RPL: The preferred parent is ");
-      PRINT6ADDR(rpl_get_parent_ipaddr(instance->current_dag->preferred_parent));
-      PRINTF(" (rank %u)\n",
-           (unsigned)DAG_RANK(instance->current_dag->preferred_parent->rank, instance));
+      printf("RPL: The preferred parent is %u, (rank %u)\n",
+        instance->current_dag->preferred_parent->dag->instance->instance_id, 
+        (unsigned)DAG_RANK(instance->current_dag->preferred_parent->rank, instance));
     } else {
-      PRINTF("RPL: We don't have any parent");
+      printf("RPL: We don't have any parent");
     }
   }
 #endif /* DEBUG */

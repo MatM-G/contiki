@@ -293,7 +293,7 @@ rpl_parent_t *rpl_get_parent(uip_lladdr_t *addr);
 rpl_rank_t rpl_get_parent_rank(uip_lladdr_t *addr);
 void rpl_dag_init(void);
 uip_ds6_nbr_t *rpl_get_nbr(rpl_parent_t *parent);
-void rpl_print_neighbor_list(void);
+//void rpl_print_neighbor_list(void);
 int rpl_process_srh_header(void);
 int rpl_srh_get_next_hop(uip_ipaddr_t *ipaddr);
 

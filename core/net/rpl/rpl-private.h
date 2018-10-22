@@ -199,6 +199,18 @@
 #define CALCULATE_RANK_ON_TIMER             RPL_CONF_CALCULATE_RANK_ON_TIMER
 #endif /* RPL_CONF_CALCULATE_RANK_ON_TIMER */
 
+#ifndef RPL_CONF_STATIC_RANK
+#define RPL_STATIC_RANK                     -1
+#else /* RPL_CONF_STATIC_RANK */
+#define RPL_STATIC_RANK                     RPL_CONF_STATIC_RANK
+#endif /* RPL_CONF_STATIC_RANK */
+
+#ifndef RPL_CONF_VALIDATE_RANK
+#define RPL_VALIDATE_RANK                1
+#else /* RPL_CONF_VALIDATE_RANK */
+#define RPL_VALIDATE_RANK                RPL_CONF_VALIDATE_RANK
+#endif /* RPL_CONF_VALIDATE_RANK */
+
 /*---------------------------------------------------------------------------*/
 #define RPL_INSTANCE_LOCAL_FLAG         0x80
 #define RPL_INSTANCE_D_FLAG             0x40

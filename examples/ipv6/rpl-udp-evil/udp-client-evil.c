@@ -62,9 +62,7 @@
 
 #include "net/rpl/rpl.h"
 
-#define RPL_CONF_MAX_RANKINC 0
-#define RPL_CONF_INFINITE_RANK 256
-#define RPL_CONF_CALCULATE_RANK_ON_TIMER 0
+
 
 static struct uip_udp_conn *client_conn;
 static uip_ipaddr_t server_ipaddr;
@@ -84,7 +82,9 @@ tcpip_handler(void)
     str = uip_appdata;
     str[uip_datalen()] = '\0';
     reply++;
+#if RESULTSLOG    
 	  printf("ResultsLog:DATA:RecPacketReplySeq:%s:PacketReply#:%u:\n",str, ++seq_id);
+#endif    
     //printf("DATA recv '%s' (s:%d, r:%d)\n", str, seq_id, reply);
   }
 }
@@ -109,7 +109,9 @@ send_packet(void *ptr)
   }
 
   seq_id++;
+#if RESULTSLOG  
   printf("ResultsLog:PacketSent#:%u\n", seq_id);
+#endif  
   PRINTF("DATA send to %d 'Hello %d'\n",server_ipaddr.u8[sizeof(server_ipaddr.u8) - 1], seq_id);
   sprintf(buf, "%d", seq_id);
   uip_udp_packet_sendto(client_conn, buf, strlen(buf),
@@ -222,7 +224,7 @@ PROCESS_THREAD(udp_client_process, ev, data)
       str = data;
       if(str[0] == 'r') {
         uip_ds6_route_t *r;
-        uip_ipaddr_t *nexthop;
+        //uip_ipaddr_t *nexthop;
         uip_ds6_defrt_t *defrt;
         uip_ipaddr_t *ipaddr;
         defrt = NULL;
@@ -240,8 +242,8 @@ PROCESS_THREAD(udp_client_process, ev, data)
         for(r = uip_ds6_route_head();
             r != NULL;
             r = uip_ds6_route_next(r)) {
-          nexthop = uip_ds6_route_nexthop(r);
-          PRINTF("Route: %02d -> %02d", r->ipaddr.u8[15], nexthop->u8[15]);
+          //nexthop = uip_ds6_route_nexthop(r);
+          //PRINTF("Route: %02d -> %02d", r->ipaddr.u8[15], nexthop->u8[15]);
           /* PRINT6ADDR(&r->ipaddr); */
           /* PRINTF(" -> "); */
           /* PRINT6ADDR(nexthop); */
@@ -276,5 +278,7 @@ void
 rpl_udp_callback_parent_switch(rpl_parent_t *old, rpl_parent_t *new)
 {
     ++switch_id;
+#if RESULTSLOG    
     printf("ResultsLog:NumberOfParentswitch:%i\n", switch_id);
+#endif    
 }

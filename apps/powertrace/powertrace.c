@@ -72,6 +72,8 @@ PROCESS(powertrace_process, "Periodic power output");
 void
 powertrace_print(char *str)
 {
+#if RESULTSLOG
+
   uint64_t all_cpu, all_lpm, all_transmit, all_listen, all_time;
   uint32_t power_cpu, power_lpm, power_transmit, power_listen, all_powerinmJ; // , all_powerinmW;
   uint64_t cpu_consumption, lpm_consumption, transmit_consumption, listen_consumption;
@@ -89,14 +91,14 @@ powertrace_print(char *str)
    all_transmit = energest_type_time(ENERGEST_TYPE_TRANSMIT);
    all_listen = energest_type_time(ENERGEST_TYPE_LISTEN);
    //printf("POWERTRACE:all_cpu= %u :all_lpm= %u \n",all_cpu,all_lpm);
-   all_time= ((all_cpu + all_lpm)/32768) + 1;// simulation time in seconds , we increase one second to be exactly compatible with simulation time
+   
   
   // calculate the power consumption
   cpu_consumption =  (all_cpu * power_cpu) / 32768;
   lpm_consumption =  (all_lpm * power_lpm) / 32768;
   transmit_consumption =  (all_transmit * power_transmit) / 32768;
   listen_consumption =  (all_listen *  power_listen) / 32768;
-  all_powerinmJ = (cpu_consumption + lpm_consumption + transmit_consumption + listen_consumption) / 10000;
+  
   //printf("POWERTRACE:all_cpu %llu all_lpm %llu",  all_cpu , all_lpm);
   //printf(" all_transmit %llu all_listen %llu \n" , all_transmit, all_listen);
   //printf("POWERTRACE:cpu_consumption %llu lpm_consumption %llu",  cpu_consumption , lpm_consumption);
@@ -108,8 +110,12 @@ powertrace_print(char *str)
   //printf("all_cpuP %llu lpmP %llu transmitP %llu listenP %llu Average Energy in mJ %lu", cpu_consumption, lpm_consumption,transmit_consumption, listen_consumption);
   //printf("Cons energy in mJ %lu Average Power in mW %d.%03d simualtionTime in S %llu \n", all_powerinmJ, (int)(all_powerinmJ / all_time), (int)((1000L * all_powerinmJ) / all_time - (all_powerinmJ / all_time) * 1000), all_time);
   //printf("POWERTRACE:all_powerinmJ= %ld :all_time= %ld \n",all_powerinmJ,all_time);
-  printf("ResultsLog:AveragePowermW:%d.%03d\n",(int)(all_powerinmJ / all_time),(int)((1000L * all_powerinmJ) / all_time - (all_powerinmJ / all_time) * 1000));
 
+  
+  all_time= ((all_cpu + all_lpm)/32768) + 1;// simulation time in seconds , we increase one second to be exactly compatible with simulation time
+  all_powerinmJ = (cpu_consumption + lpm_consumption + transmit_consumption + listen_consumption) / 10000;
+  printf("ResultsLog:AveragePowermW:%d.%03d\n",(int)(all_powerinmJ / all_time),(int)((1000L * all_powerinmJ) / all_time - (all_powerinmJ / all_time) * 1000));
+#endif
   //static uint32_t seqno;
 
   

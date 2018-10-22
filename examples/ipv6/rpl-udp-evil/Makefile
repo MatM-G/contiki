@@ -1,16 +1,13 @@
-all: udp-client udp-server
+all: udp-client-evil
 CONTIKI=../../..
 
 CFLAGS += -DPROJECT_CONF_H=\"project-conf.h\"
 
-ifdef WITH_COMPOWER
 APPS+=powertrace
 CFLAGS+= -DCONTIKIMAC_CONF_COMPOWER=1 -DWITH_COMPOWER=1 -DQUEUEBUF_CONF_NUM=4
-endif
 
-ifdef SERVER_REPLY
-CFLAGS+=-DSERVER_REPLY=$(SERVER_REPLY)
-endif
+CFLAGS+=-DSERVER_REPLY=1
+
 ifdef PERIOD
 CFLAGS+=-DPERIOD=$(PERIOD)
 endif

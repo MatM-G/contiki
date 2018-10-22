@@ -69,7 +69,9 @@ tcpip_handler(void)
     appdata[uip_datalen()] = 0;
     senderID = UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1];
     numberOfReceivedPacket[senderID]++;
+#if RESULTSLOG    
     printf("ResultsLog:DATA:PacketRecieved#:ForNode:%d:is:%u:RecPacketSeq:%s:\n",senderID ,numberOfReceivedPacket[senderID],appdata);
+#endif    
     //PRINTF("DATA recv '%s' from ", appdata);
     //PRINTF("%d",
     //       UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1]);
@@ -194,5 +196,7 @@ void
 rpl_udp_callback_parent_switch(rpl_parent_t *old, rpl_parent_t *new)
 {
     ++switch_id;
+#if RESULTSLOG    
     printf("ResultsLog:NumberOfParentswitch:%i\n", switch_id);
+#endif    
 }

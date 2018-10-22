@@ -296,6 +296,7 @@ dio_input(void)
   dio.dag_redund = RPL_DIO_REDUNDANCY;
   dio.dag_min_hoprankinc = RPL_MIN_HOPRANKINC;
   dio.dag_max_rankinc = RPL_MAX_RANKINC;
+  //printf("rpl-icmp6|dio_input|RPL_MAX_RANKINC=%u \n",RPL_MAX_RANKINC);
   dio.ocp = RPL_OF_OCP;
   dio.default_lifetime = RPL_DEFAULT_LIFETIME;
   dio.lifetime_unit = RPL_DEFAULT_LIFETIME_UNIT;
@@ -498,9 +499,19 @@ dio_output(rpl_instance_t *instance, uip_ipaddr_t *uc_addr)
 #if RPL_LEAF_ONLY
   PRINTF("RPL: LEAF ONLY DIO rank set to INFINITE_RANK\n");
   set16(buffer, pos, INFINITE_RANK);
+  //printf("rpl-icmp6|dio_output|INFINITE_RANK= %u \n",INFINITE_RANK);
 #else /* RPL_LEAF_ONLY */
-  set16(buffer, pos, dag->rank);
+#if RPL_STATIC_RANK > -1
+set16(buffer, pos, RPL_STATIC_RANK);
+printf("rpl-icmp6|dio_output|dag->rank= %u \n",RPL_STATIC_RANK);
+#else /* RPL_STATIC_RANK */
+set16(buffer, pos, dag->rank);
+printf("rpl-icmp6|dio_output|dag->rank= %u \n",dag->rank);
+#endif /* RPL_STATIC_RANK */
+  
+  
 #endif /* RPL_LEAF_ONLY */
+
   pos += 2;
 
   buffer[pos] = 0;
@@ -795,7 +806,9 @@ dao_input_storing(void)
 
         buffer = UIP_ICMP_PAYLOAD;
         buffer[3] = out_seq; /* add an outgoing seq no before fwd */
+#if RESULTSLOG
         printf("ResultsLog:totalDAOForward:%d:nopath\n", ++instance->dao_totforwarded);
+#endif      
         uip_icmp6_send(rpl_get_parent_ipaddr(dag->preferred_parent),
                        ICMP6_RPL, RPL_CODE_DAO, buffer_length);
       }
@@ -889,7 +902,9 @@ fwd_dao:
       buffer = UIP_ICMP_PAYLOAD;
       buffer[3] = out_seq; /* add an outgoing seq no before fwd */
       rep->flag++;
+#if RESULTSLOG
       printf("ResultsLog:totalDAOForward:%d:nopath\n", ++instance->dao_totforwarded);
+#endif
       uip_icmp6_send(rpl_get_parent_ipaddr(dag->preferred_parent),
                      ICMP6_RPL, RPL_CODE_DAO, buffer_length);
     }
@@ -1185,8 +1200,9 @@ dao_output_target_seq(rpl_parent_t *parent, uip_ipaddr_t *prefix,
 #ifdef RPL_DEBUG_DAO_OUTPUT
   RPL_DEBUG_DAO_OUTPUT(parent);
 #endif
-
+#if RESULTSLOG
   printf("ResultsLog:totalDAOSent:%d\n", ++instance->dao_totsent);
+#endif  
 
   buffer = UIP_ICMP_PAYLOAD;
   pos = 0;

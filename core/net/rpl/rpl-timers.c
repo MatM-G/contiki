@@ -92,6 +92,7 @@ handle_periodic_timer(void *ptr)
       rpl_ns_periodic();
     }
   }
+  //printf("rpl-timers: CALCULATE_RANK_ON_TIMER= %u\n",CALCULATE_RANK_ON_TIMER);
   if(CALCULATE_RANK_ON_TIMER == 1){
     rpl_recalculate_ranks();
   }
@@ -179,7 +180,9 @@ handle_dio_timer(void *ptr)
     if(instance->dio_redundancy == 0 || instance->dio_counter < instance->dio_redundancy) {
 #if RPL_CONF_STATS
       instance->dio_totsend++;
+#if RESULTSLOG      
       printf("ResultsLog:totalDIOSent:%d\n", instance->dio_totsend);
+#endif      
 #endif /* RPL_CONF_STATS */
       dio_output(instance, NULL);
       /* looop throguh all routes you have to reset thier flag */
@@ -201,9 +204,9 @@ handle_dio_timer(void *ptr)
     new_dio_interval(instance);
   }
 
-#if DEBUG
+/*#if DEBUG
   rpl_print_neighbor_list();
-#endif
+#endif*/
 }
 /*---------------------------------------------------------------------------*/
 void
@@ -487,9 +490,9 @@ handle_probing_timer(void *ptr)
   /* Schedule next probing */
   rpl_schedule_probing(instance);
 
-#if DEBUG
+/*#if DEBUG
   rpl_print_neighbor_list();
-#endif
+#endif*/
 }
 /*---------------------------------------------------------------------------*/
 void
