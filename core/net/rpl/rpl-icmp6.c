@@ -468,9 +468,12 @@ discard:
   uip_clear_buf();
 }
 /*---------------------------------------------------------------------------*/
+static int seq_dio;
+
 void
 dio_output(rpl_instance_t *instance, uip_ipaddr_t *uc_addr)
 {
+  seq_dio++;
   unsigned char *buffer;
   int pos;
   int is_root;
@@ -500,13 +503,26 @@ dio_output(rpl_instance_t *instance, uip_ipaddr_t *uc_addr)
   PRINTF("RPL: LEAF ONLY DIO rank set to INFINITE_RANK\n");
   set16(buffer, pos, INFINITE_RANK);
   //printf("rpl-icmp6|dio_output|INFINITE_RANK= %u \n",INFINITE_RANK);
-#else /* RPL_LEAF_ONLY */
+#else
+
 #if RPL_STATIC_RANK > -1
-set16(buffer, pos, RPL_STATIC_RANK);
-printf("rpl-icmp6|dio_output|dag->rank= %u \n",RPL_STATIC_RANK);
+  set16(buffer, pos, RPL_STATIC_RANK);
+  printf("rpl-icmp6|dio_output|dag->rank(static)= %u \n",RPL_STATIC_RANK);
 #else /* RPL_STATIC_RANK */
+//printf("RPL_ADJUST_RANK_AFTER_DIO=%d, seq_dio=%u \n", RPL_ADJUST_RANK_AFTER_DIO, seq_dio);
+#if RPL_ADJUST_RANK_AFTER_DIO > -1
+  if (seq_dio>RPL_ADJUST_RANK_AFTER_DIO) {
+    set16(buffer, pos, RPL_EVENTUAL_RANK);
+    printf("rpl-icmp6|dio_output|dag->rank(eventual)= %u \n",RPL_EVENTUAL_RANK);
+  }
+  else {
+    set16(buffer, pos, dag->rank);
+    printf("rpl-icmp6|dio_output|dag->rank(calcd for now)= %u \n",dag->rank);
+  }
+#else /* RPL_ADJUST_RANK_AFTER_DIO */
 set16(buffer, pos, dag->rank);
-printf("rpl-icmp6|dio_output|dag->rank= %u \n",dag->rank);
+printf("rpl-icmp6|dio_output|dag->rank(calcd)= %u \n",dag->rank);
+#endif /* RPL_ADJUST_RANK_AFTER_DIO */
 #endif /* RPL_STATIC_RANK */
   
   

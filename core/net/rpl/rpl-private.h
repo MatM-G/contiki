@@ -205,6 +205,36 @@
 #define RPL_STATIC_RANK                     RPL_CONF_STATIC_RANK
 #endif /* RPL_CONF_STATIC_RANK */
 
+#ifndef RPL_CONF_ADJUST_RANK_AFTER_DIO
+#define RPL_ADJUST_RANK_AFTER_DIO           -1
+#else /* RPL_CONF_ADJUST_RANK_AFTER_DIO */
+#define RPL_ADJUST_RANK_AFTER_DIO            RPL_CONF_ADJUST_RANK_AFTER_DIO
+#endif /* RPL_CONF_ADJUST_RANK_AFTER_DIO */
+
+#ifndef RPL_CONF_EVENTUAL_RANK
+#define RPL_EVENTUAL_RANK                     -1
+#else /* RPL_CONF_EVENTUAL_RANK */
+#define RPL_EVENTUAL_RANK                     RPL_CONF_EVENTUAL_RANK
+#endif /* RPL_CONF_EVENTUAL_RANK */
+
+#ifndef RPL_CONF_CHANGE_PERIOD
+#define RPL_CHANGE_PERIOD                     -1
+#else /* RPL_CONF_CHANGE_PERIOD */
+#define RPL_CHANGE_PERIOD                     RPL_CONF_CHANGE_PERIOD
+#endif /* RPL_CONF_CHANGE_PERIOD */
+
+#ifndef RPL_CONF_LOW_RANK
+#define RPL_LOW_RANK                     -1
+#else /* RPL_CONF_LOW_RANK */
+#define RPL_LOW_RANK                     RPL_CONF_LOW_RANK
+#endif /* RPL_CONF_LOW_RANK */
+
+#ifndef RPL_CONF_HIGH_RANK
+#define RPL_HIGH_RANK                     -1
+#else /* RPL_CONF_HIGH_RANK */
+#define RPL_HIGH_RANK                     RPL_CONF_HIGH_RANK
+#endif /* RPL_CONF_HIGH_RANK */
+
 #ifndef RPL_CONF_VALIDATE_RANK
 #define RPL_VALIDATE_RANK                1
 #else /* RPL_CONF_VALIDATE_RANK */
