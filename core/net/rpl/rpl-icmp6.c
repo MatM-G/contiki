@@ -468,7 +468,7 @@ discard:
   uip_clear_buf();
 }
 /*---------------------------------------------------------------------------*/
-static int seq_dio;
+static signed int seq_dio;
 
 void
 dio_output(rpl_instance_t *instance, uip_ipaddr_t *uc_addr)
@@ -507,25 +507,39 @@ dio_output(rpl_instance_t *instance, uip_ipaddr_t *uc_addr)
 
 #if RPL_STATIC_RANK > -1
   set16(buffer, pos, RPL_STATIC_RANK);
-  printf("rpl-icmp6|dio_output|dag->rank(static)= %u \n",RPL_STATIC_RANK);
+  //printf("rpl-icmp6|dio_output|dag->rank(static)= %u \n",RPL_STATIC_RANK);
 #else /* RPL_STATIC_RANK */
 //printf("RPL_ADJUST_RANK_AFTER_DIO=%d, seq_dio=%u \n", RPL_ADJUST_RANK_AFTER_DIO, seq_dio);
 #if RPL_ADJUST_RANK_AFTER_DIO > -1
   if (seq_dio>RPL_ADJUST_RANK_AFTER_DIO) {
     set16(buffer, pos, RPL_EVENTUAL_RANK);
-    printf("rpl-icmp6|dio_output|dag->rank(eventual)= %u \n",RPL_EVENTUAL_RANK);
+    //printf("rpl-icmp6|dio_output|dag->rank(eventual)= %u \n",RPL_EVENTUAL_RANK);
   }
   else {
     set16(buffer, pos, dag->rank);
-    printf("rpl-icmp6|dio_output|dag->rank(calcd for now)= %u \n",dag->rank);
+    //printf("rpl-icmp6|dio_output|dag->rank(calcd for now)= %u \n",dag->rank);
   }
 #else /* RPL_ADJUST_RANK_AFTER_DIO */
-set16(buffer, pos, dag->rank);
-printf("rpl-icmp6|dio_output|dag->rank(calcd)= %u \n",dag->rank);
+#if RPL_CHANGE_PERIOD > -1
+  //printf("seq_dio: %d, RPL_CHANGE_PERIOD: %d, RPL_LOW_RANK: %d, RPL_HIGH_RANK: %d \n",
+  //  seq_dio,RPL_CHANGE_PERIOD, RPL_LOW_RANK, RPL_HIGH_RANK);
+  if (seq_dio-RPL_CHANGE_PERIOD>0) {
+    set16(buffer, pos, RPL_HIGH_RANK);
+    //printf("rpl-icmp6|dio_output|dag->rank(high)= %u seq_dio=%d\n",RPL_HIGH_RANK,seq_dio);  
+    if (seq_dio-(2*RPL_CHANGE_PERIOD)>0) {
+      seq_dio = 0;
+    }
+  }
+  else{
+    set16(buffer, pos, RPL_LOW_RANK);
+    //printf("rpl-icmp6|dio_output|dag->rank(low)= %u  seq_dio=%d\n",RPL_LOW_RANK,seq_dio);
+  }
+#else /* RPL_CHANGE_PERIOD */
+  set16(buffer, pos, dag->rank);
+  //printf("rpl-icmp6|dio_output|dag->rank(calcd)= %u \n",dag->rank);
+#endif /* RPL_CHANGE_PERIOD */
 #endif /* RPL_ADJUST_RANK_AFTER_DIO */
 #endif /* RPL_STATIC_RANK */
-  
-  
 #endif /* RPL_LEAF_ONLY */
 
   pos += 2;

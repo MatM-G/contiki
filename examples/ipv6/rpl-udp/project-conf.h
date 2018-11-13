@@ -75,4 +75,6 @@
 #define RPL_CALLBACK_PARENT_SWITCH rpl_udp_callback_parent_switch
 #define RPL_CONF_MOP RPL_MOP_STORING_NO_MULTICAST
 
-#define RESULTSLOG 0
+#define RESULTSLOG 1
+#define RPL_CONF_OF_OCP             RPL_OCP_OF0
+#define RPL_CONF_SUPPORTED_OFS      {&rpl_of0}

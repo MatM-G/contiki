@@ -75,7 +75,7 @@
 #define RPL_CALLBACK_PARENT_SWITCH rpl_udp_callback_parent_switch
 #define RPL_CONF_MOP RPL_MOP_STORING_NO_MULTICAST
 
-#define RESULTSLOG 0
+#define RESULTSLOG 1
 #undef RPL_CONF_MAX_RANKINC
 #undef RPL_CONF_INFINITE_RANK
 #undef RPL_CONF_CALCULATE_RANK_ON_TIMER
@@ -86,12 +86,19 @@
 #define RPL_CONF_INFINITE_RANK              256
 #define RPL_CONF_CALCULATE_RANK_ON_TIMER    0
 #define RPL_CONF_VALIDATE_RANK              0
+
 /* Rank down */
-/*#define RPL_CONF_STATIC_RANK                255 */
+//#define RPL_CONF_STATIC_RANK                255
+
 /* Rank up - create routing loops */
 /*#define RPL_CONF_ADJUST_RANK_AFTER_DIO      5
 #define RPL_CONF_EVENTUAL_RANK              999*/
+
 /* Combined rank up and down, ossillating */
 #define RPL_CONF_CHANGE_PERIOD              5
 #define RPL_CONF_LOW_RANK                   255
-#define RPL_CONF_HIGH_RANK                  2000
+#define RPL_CONF_HIGH_RANK                  999
+
+// just comment out the next two lines to switch back to the hof
+#define RPL_CONF_OF_OCP             RPL_OCP_OF0
+#define RPL_CONF_SUPPORTED_OFS      {&rpl_of0}
